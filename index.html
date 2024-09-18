@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO App</title>
+</head>
+<body>
+    <h1>TODO App</h1>
+    <form id="taskForm">
+        <input type="text" id="description" placeholder="Task Description" required>
+        <select id="priority">
+            <option value="Urgent">Urgent</option>
+            <option value="Important">Important</option>
+            <option value="Others">Others</option>
+        </select>
+        <button type="submit">Add Task</button>
+    </form>
+    <ul id="taskList"></ul>
+
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const description = document.getElementById('description').value;
+            const priority = document.getElementById('priority').value;
+
+            fetch('/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ description, priority })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                loadTasks();
+            });
+        });
+
+        function loadTasks() {
+            fetch('/tasks')
+                .then(response => response.json())
+                .then(tasks => {
+                    const taskList = document.getElementById('taskList');
+                    taskList.innerHTML = '';
+                    tasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.textContent = `${task.priority}: ${task.description}`;
+                        taskList.appendChild(li);
+                    });
+                });
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>
